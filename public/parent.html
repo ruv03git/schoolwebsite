@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student/Parent Portal - Fun N Learn Preschool</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="dashboard-page">
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Fun N Learn</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="overview" onclick="showSection('overview', this)">
+          Dashboard
+        </a>
+        <a href="#" class="nav-item" data-section="grades" onclick="showSection('grades', this)">
+          Grades
+        </a>
+        <a href="#" class="nav-item" data-section="attendance" onclick="showSection('attendance', this)">
+          Attendance
+        </a>
+        <a href="#" class="nav-item" data-section="announcements" onclick="showSection('announcements', this)">
+          Announcements
+        </a>
+        <a href="#" class="nav-item" data-section="profile" onclick="showSection('profile', this)">
+          Profile
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-outline btn-sm btn-block" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">Menu</button>
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="header-user">
+          <span id="userName">User</span>
+          <span class="badge badge-student" id="userBadge">Student</span>
+        </div>
+      </header>
+
+      <div class="dashboard-content">
+        <!-- Overview Section -->
+        <section id="section-overview" class="content-section active">
+          <!-- Children Cards (for parents) -->
+          <div id="childrenCards" class="children-cards" style="display:none;"></div>
+
+          <div class="stats-grid">
+            <div class="stat-card stat-blue">
+              <div class="stat-card-info">
+                <span class="stat-card-number" id="statAttRate">-</span>
+                <span class="stat-card-label">Attendance Rate</span>
+              </div>
+            </div>
+            <div class="stat-card stat-green">
+              <div class="stat-card-info">
+                <span class="stat-card-number" id="statPresent">-</span>
+                <span class="stat-card-label">Days Present</span>
+              </div>
+            </div>
+            <div class="stat-card stat-orange">
+              <div class="stat-card-info">
+                <span class="stat-card-number" id="statAbsent">-</span>
+                <span class="stat-card-label">Days Absent</span>
+              </div>
+            </div>
+            <div class="stat-card stat-purple">
+              <div class="stat-card-info">
+                <span class="stat-card-number" id="statUpcoming">-</span>
+                <span class="stat-card-label">Upcoming Events</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="margin-top:2rem;">
+            <div class="card">
+              <h3 class="card-title">Recent Grades & Assessments</h3>
+              <div id="recentGrades" class="list-container">
+                <p class="text-muted">Loading...</p>
+              </div>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Latest Announcements</h3>
+              <div id="latestAnnouncements" class="list-container">
+                <p class="text-muted">Loading...</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:2rem;">
+            <h3 class="card-title">Upcoming Events</h3>
+            <div id="upcomingEvents" class="events-list">
+              <p class="text-muted">Loading...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Grades Section -->
+        <section id="section-grades" class="content-section">
+          <h2>Academic & Activity Grades</h2>
+          <div id="gradesSelectStudent" class="filter-bar" style="display:none;">
+            <select id="gradesStudentPicker" onchange="loadStudentGrades()" class="form-select">
+              <option value="">Select Child</option>
+            </select>
+          </div>
+          <div id="gradesContent">
+            <p class="text-muted">Loading grades...</p>
+          </div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="section-attendance" class="content-section">
+          <h2>Attendance Record</h2>
+          <div id="attendanceSelectStudent" class="filter-bar" style="display:none;">
+            <select id="attendanceStudentPicker" onchange="loadStudentAttendance()" class="form-select">
+              <option value="">Select Child</option>
+            </select>
+          </div>
+          <div id="attendanceContent">
+            <p class="text-muted">Loading attendance...</p>
+          </div>
+        </section>
+
+        <!-- Announcements Section -->
+        <section id="section-announcements" class="content-section">
+          <h2>All Announcements</h2>
+          <div id="allAnnouncements" class="announcements-list">
+            <p class="text-muted">Loading...</p>
+          </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="section-profile" class="content-section">
+          <h2>My Profile</h2>
+          <div class="card">
+            <div class="profile-info" id="profileInfo">
+              <p class="text-muted">Loading...</p>
+            </div>
+          </div>
+          <div class="card" style="margin-top:1.5rem;">
+            <h3 class="card-title">Change Password</h3>
+            <form onsubmit="handleChangePassword(event)" style="max-width:400px;">
+              <div id="pwdError" class="alert alert-error" style="display:none;"></div>
+              <div id="pwdSuccess" class="alert alert-success" style="display:none;"></div>
+              <div class="form-group"><label>Current Password</label><input type="password" id="currentPwd" required class="form-input"></div>
+              <div class="form-group"><label>New Password</label><input type="password" id="newPwd" required class="form-input" minlength="6"></div>
+              <div class="form-group"><label>Confirm New Password</label><input type="password" id="confirmPwd" required class="form-input"></div>
+              <button type="submit" class="btn btn-primary">Update Password</button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/parent.js"></script>
+</body>
+</html>

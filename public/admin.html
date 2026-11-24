@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Fun N Learn Preschool</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="dashboard-page">
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Fun N Learn</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="overview" onclick="showSection('overview', this)">
+          Overview
+        </a>
+        <a href="#" class="nav-item" data-section="students" onclick="showSection('students', this)">
+          Students
+        </a>
+        <a href="#" class="nav-item" data-section="parents" onclick="showSection('parents', this)">
+          Parents
+        </a>
+        <a href="#" class="nav-item" data-section="grades" onclick="showSection('grades', this)">
+          Grades
+        </a>
+        <a href="#" class="nav-item" data-section="attendance" onclick="showSection('attendance', this)">
+          Attendance
+        </a>
+        <a href="#" class="nav-item" data-section="announcements" onclick="showSection('announcements', this)">
+          Announcements
+        </a>
+        <a href="#" class="nav-item" data-section="events" onclick="showSection('events', this)">
+          Events
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-outline btn-sm btn-block" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">Menu</button>
+        <h1 id="pageTitle">Dashboard Overview</h1>
+        <div class="header-user">
+          <span id="userName">Admin</span>
+          <span class="badge badge-admin" id="userRoleBadge">Admin</span>
+        </div>
+      </header>
+
+      <div class="dashboard-content">
+        <!-- Overview Section -->
+        <section id="section-overview" class="content-section active">
+          <div class="stats-grid">
+            <div class="stat-card stat-blue">
+              <div class="stat-card-info">
+                <span class="stat-card-number" id="statStudents">0</span>
+                <span class="stat-card-label">Total Students</span>
+              </div>
+            </div>
+            <div class="stat-card stat-green">
+              <div class="stat-card-info">
+                <span class="stat-card-number" id="statParents">0</span>
+                <span class="stat-card-label">Total Parents</span>
+              </div>
+            </div>
+            <div class="stat-card stat-purple">
+              <div class="stat-card-info">
+                <span class="stat-card-number" id="statAttendance">0%</span>
+                <span class="stat-card-label">Today's Attendance</span>
+              </div>
+            </div>
+            <div class="stat-card stat-orange">
+              <div class="stat-card-info">
+                <span class="stat-card-number" id="statEvents">0</span>
+                <span class="stat-card-label">Upcoming Events</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-2" style="margin-top:2rem;">
+            <div class="card">
+              <h3 class="card-title">Recent Announcements</h3>
+              <div id="recentAnnouncements" class="list-container">
+                <p class="text-muted">Loading...</p>
+              </div>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Quick Actions</h3>
+              <div class="quick-actions">
+                <button class="btn btn-primary btn-block" onclick="showSection('students', document.querySelector('[data-section=students]')); document.getElementById('addStudentBtn').click();">Add Student</button>
+                <button class="btn btn-secondary btn-block" onclick="showSection('announcements', document.querySelector('[data-section=announcements]')); setTimeout(()=>document.getElementById('addAnnouncementBtn').click(), 100);">Post Announcement</button>
+                <button class="btn btn-secondary btn-block" onclick="showSection('attendance', document.querySelector('[data-section=attendance]'));">Mark Attendance</button>
+                <button class="btn btn-secondary btn-block" onclick="showSection('grades', document.querySelector('[data-section=grades]'));">Enter Grades</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Students Section -->
+        <section id="section-students" class="content-section">
+          <div class="section-header">
+            <h2>Student Management</h2>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-secondary" onclick="downloadCsvTemplate()">Download CSV Template</button>
+              <button class="btn btn-secondary" onclick="openModal('csvModal')">Upload CSV</button>
+              <button class="btn btn-primary" id="addStudentBtn" onclick="openModal('studentModal')">Add Student</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Roll No.</th>
+                  <th>Class / Grade</th>
+                  <th>Section</th>
+                  <th>Parent</th>
+                  <th>Email</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentsTable">
+                <tr><td colspan="7" class="text-center text-muted">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Parents Section -->
+        <section id="section-parents" class="content-section">
+          <div class="section-header">
+            <h2>Parent Management</h2>
+            <button class="btn btn-primary" onclick="openModal('parentModal')">Add Parent</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Children</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="parentsTable">
+                <tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Grades Section -->
+        <section id="section-grades" class="content-section">
+          <div class="section-header">
+            <h2>Grade & Assessment Management</h2>
+            <button class="btn btn-primary" onclick="openModal('gradeModal')">Add Grade</button>
+          </div>
+          <div class="filter-bar">
+            <select id="gradeFilterStudent" onchange="loadGrades()" class="form-select">
+              <option value="">All Students</option>
+            </select>
+            <select id="gradeFilterTerm" onchange="loadGrades()" class="form-select">
+              <option value="">All Terms</option>
+              <option value="Term 1">Term 1</option>
+              <option value="Term 2">Term 2</option>
+              <option value="Term 3">Term 3</option>
+            </select>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Subject / Activity</th>
+                  <th>Score</th>
+                  <th>Max</th>
+                  <th>%</th>
+                  <th>Term</th>
+                  <th>Type</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="gradesTable">
+                <tr><td colspan="8" class="text-center text-muted">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="section-attendance" class="content-section">
+          <div class="section-header">
+            <h2>Attendance Management</h2>
+            <button class="btn btn-primary" onclick="openModal('attendanceModal')">Mark Attendance</button>
+          </div>
+          <div class="filter-bar">
+            <input type="date" id="attendanceDate" onchange="loadAttendance()" class="form-input">
+            <select id="attendanceFilterStudent" onchange="loadAttendance()" class="form-select">
+              <option value="">All Students</option>
+            </select>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Class</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTable">
+                <tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Announcements Section -->
+        <section id="section-announcements" class="content-section">
+          <div class="section-header">
+            <h2>Announcements</h2>
+            <button class="btn btn-primary" id="addAnnouncementBtn" onclick="openModal('announcementModal')">New Announcement</button>
+          </div>
+          <div id="announcementsList" class="announcements-list">
+            <p class="text-muted">Loading...</p>
+          </div>
+        </section>
+
+        <!-- Events Section -->
+        <section id="section-events" class="content-section">
+          <div class="section-header">
+            <h2>School Events</h2>
+            <button class="btn btn-primary" onclick="openModal('eventModal')">Add Event</button>
+          </div>
+          <div id="eventsList" class="events-list">
+            <p class="text-muted">Loading...</p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <!-- Student Modal -->
+  <div class="modal" id="studentModal">
+    <div class="modal-overlay" onclick="closeModal('studentModal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add New Student</h2>
+        <button class="modal-close" onclick="closeModal('studentModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddStudent(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group"><label>Full Name *</label><input type="text" id="sFullName" required class="form-input"></div>
+            <div class="form-group"><label>Username *</label><input type="text" id="sUsername" required class="form-input"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Password *</label><input type="password" id="sPassword" required class="form-input"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="sEmail" class="form-input"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Class / Program *</label>
+              <select id="sGrade" required class="form-select">
+                <option value="">Select Program</option>
+                <option value="Playgroup">Playgroup (Age 2 - 3 yrs)</option>
+                <option value="Nursery">Nursery (Age 3 - 4 yrs)</option>
+                <option value="LKG">LKG (Age 3.5 / 4 - 5 yrs)</option>
+                <option value="UKG">UKG (Age 4.5 / 5 - 6 yrs)</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Section</label>
+              <select id="sSection" class="form-select">
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Roll Number</label><input type="text" id="sRollNumber" class="form-input"></div>
+            <div class="form-group"><label>Date of Birth</label><input type="date" id="sDOB" class="form-input"></div>
+          </div>
+          <div class="form-group">
+            <label>Parent</label>
+            <select id="sParent" class="form-select"><option value="">No Parent Linked</option></select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('studentModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Student Modal -->
+  <div class="modal" id="editStudentModal">
+    <div class="modal-overlay" onclick="closeModal('editStudentModal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Student</h2>
+        <button class="modal-close" onclick="closeModal('editStudentModal')">&times;</button>
+      </div>
+      <form onsubmit="handleEditStudent(event)">
+        <input type="hidden" id="editStudentId">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group"><label>Full Name *</label><input type="text" id="editFullName" required class="form-input"></div>
+            <div class="form-group"><label>Username</label><input type="text" id="editUsername" disabled class="form-input" style="background:#f1f5f9; cursor:not-allowed;"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Email</label><input type="email" id="editEmail" class="form-input"></div>
+            <div class="form-group"><label>Phone</label><input type="text" id="editPhone" class="form-input"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Class / Program *</label>
+              <select id="editGrade" required class="form-select">
+                <option value="Playgroup">Playgroup (Age 2 - 3 yrs)</option>
+                <option value="Nursery">Nursery (Age 3 - 4 yrs)</option>
+                <option value="LKG">LKG (Age 3.5 / 4 - 5 yrs)</option>
+                <option value="UKG">UKG (Age 4.5 / 5 - 6 yrs)</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Section</label>
+              <select id="editSection" class="form-select">
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Roll Number</label><input type="text" id="editRollNumber" class="form-input"></div>
+            <div class="form-group"><label>Date of Birth</label><input type="date" id="editDOB" class="form-input"></div>
+          </div>
+          <div class="form-group">
+            <label>Parent</label>
+            <select id="editParent" class="form-select"><option value="">No Parent Linked</option></select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editStudentModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CSV Upload Modal -->
+  <div class="modal" id="csvModal">
+    <div class="modal-overlay" onclick="closeModal('csvModal')"></div>
+    <div class="modal-content" style="max-width:680px;">
+      <div class="modal-header">
+        <h2>Upload Students CSV</h2>
+        <button class="modal-close" onclick="closeModal('csvModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-light); font-size:0.875rem; margin-bottom:1rem;">
+          Upload a <code>.csv</code> file to <strong>append</strong> new students to the current student list without altering existing records.
+        </p>
+
+        <div style="background:#f8fafc; border:1px dashed var(--border); border-radius:var(--radius); padding:1rem; margin-bottom:1.25rem;">
+          <label style="font-weight:600; font-size:0.85rem; display:block; margin-bottom:0.5rem;">Select CSV File</label>
+          <input type="file" id="csvFileInput" accept=".csv" class="form-input" onchange="handleCsvFileSelected(event)">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem; font-size:0.8rem; color:var(--text-muted);">
+            <span>Supported headers: full_name, grade, section, roll_number, username, password, email, phone, date_of_birth, parent_username</span>
+          </div>
+        </div>
+
+        <div id="csvStatus" style="display:none; margin-bottom:1rem;" class="alert"></div>
+
+        <div id="csvPreviewArea" style="display:none;">
+          <h4 style="font-size:0.9rem; margin-bottom:0.5rem;">Parsed Preview (<span id="csvCount">0</span> students found)</h4>
+          <div style="max-height:220px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius);">
+            <table class="data-table" style="font-size:0.8rem;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Class</th>
+                  <th>Section</th>
+                  <th>Roll No</th>
+                  <th>Parent</th>
+                </tr>
+              </thead>
+              <tbody id="csvPreviewTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('csvModal')">Cancel</button>
+        <button type="button" class="btn btn-secondary" onclick="downloadCsvTemplate()">Download Template</button>
+        <button type="button" class="btn btn-primary" id="btnImportCsv" onclick="submitCsvImport()" disabled>Append to Student List</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parent Modal -->
+  <div class="modal" id="parentModal">
+    <div class="modal-overlay" onclick="closeModal('parentModal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add New Parent</h2>
+        <button class="modal-close" onclick="closeModal('parentModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddParent(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group"><label>Full Name *</label><input type="text" id="pFullName" required class="form-input"></div>
+            <div class="form-group"><label>Username *</label><input type="text" id="pUsername" required class="form-input"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Password *</label><input type="password" id="pPassword" required class="form-input"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="pEmail" class="form-input"></div>
+          </div>
+          <div class="form-group"><label>Phone</label><input type="text" id="pPhone" class="form-input"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('parentModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Parent</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Grade Modal -->
+  <div class="modal" id="gradeModal">
+    <div class="modal-overlay" onclick="closeModal('gradeModal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Grade & Assessment</h2>
+        <button class="modal-close" onclick="closeModal('gradeModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddGrade(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group"><label>Student *</label>
+              <select id="gStudent" required class="form-select"><option value="">Select Student</option></select>
+            </div>
+            <div class="form-group"><label>Subject / Activity *</label><input type="text" id="gSubject" required class="form-input" placeholder="e.g. Phonics & Rhymes"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Score *</label><input type="number" id="gScore" required class="form-input" min="0" step="0.5"></div>
+            <div class="form-group"><label>Max Score</label><input type="number" id="gMaxScore" class="form-input" value="100" min="1"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Term *</label>
+              <select id="gTerm" required class="form-select"><option value="Term 1">Term 1</option><option value="Term 2">Term 2</option><option value="Term 3">Term 3</option></select>
+            </div>
+            <div class="form-group"><label>Assessment Type</label>
+              <select id="gExamType" class="form-select"><option value="Evaluation">Evaluation</option><option value="Activity Assessment">Activity Assessment</option><option value="Milestone Check">Milestone Check</option><option value="Quiz">Quiz</option></select>
+            </div>
+          </div>
+          <div class="form-group"><label>Remarks</label><input type="text" id="gRemarks" class="form-input" placeholder="Optional teacher feedback"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('gradeModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Grade</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Grade Modal -->
+  <div class="modal" id="editGradeModal">
+    <div class="modal-overlay" onclick="closeModal('editGradeModal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Grade & Assessment</h2>
+        <button class="modal-close" onclick="closeModal('editGradeModal')">&times;</button>
+      </div>
+      <form onsubmit="handleEditGrade(event)">
+        <input type="hidden" id="editGradeId">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group"><label>Student *</label>
+              <select id="editGStudent" required class="form-select"><option value="">Select Student</option></select>
+            </div>
+            <div class="form-group"><label>Subject / Activity *</label><input type="text" id="editGSubject" required class="form-input"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Score *</label><input type="number" id="editGScore" required class="form-input" min="0" step="0.5"></div>
+            <div class="form-group"><label>Max Score</label><input type="number" id="editGMaxScore" class="form-input" value="100" min="1"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Term *</label>
+              <select id="editGTerm" required class="form-select">
+                <option value="Term 1">Term 1</option>
+                <option value="Term 2">Term 2</option>
+                <option value="Term 3">Term 3</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Assessment Type</label>
+              <select id="editGExamType" class="form-select">
+                <option value="Evaluation">Evaluation</option>
+                <option value="Activity Assessment">Activity Assessment</option>
+                <option value="Milestone Check">Milestone Check</option>
+                <option value="Quiz">Quiz</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>Remarks</label><input type="text" id="editGRemarks" class="form-input" placeholder="Teacher feedback / remarks"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editGradeModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Attendance Modal -->
+  <div class="modal" id="attendanceModal">
+    <div class="modal-overlay" onclick="closeModal('attendanceModal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Mark Attendance</h2>
+        <button class="modal-close" onclick="closeModal('attendanceModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddAttendance(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group"><label>Student *</label>
+              <select id="aStudent" required class="form-select"><option value="">Select Student</option></select>
+            </div>
+            <div class="form-group"><label>Date *</label><input type="date" id="aDate" required class="form-input"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Status *</label>
+              <select id="aStatus" required class="form-select">
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+                <option value="late">Late</option>
+                <option value="excused">Excused</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Remarks</label><input type="text" id="aRemarks" class="form-input" placeholder="Optional"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('attendanceModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Attendance</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Announcement Modal -->
+  <div class="modal" id="announcementModal">
+    <div class="modal-overlay" onclick="closeModal('announcementModal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>New Announcement</h2>
+        <button class="modal-close" onclick="closeModal('announcementModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddAnnouncement(event)">
+        <div class="modal-body">
+          <div class="form-group"><label>Title *</label><input type="text" id="annTitle" required class="form-input"></div>
+          <div class="form-group"><label>Content *</label><textarea id="annContent" required class="form-textarea" rows="4"></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Target Audience</label>
+              <select id="annTarget" class="form-select"><option value="all">Everyone</option><option value="parent">Parents Only</option><option value="student">Students Only</option></select>
+            </div>
+            <div class="form-group"><label>Priority</label>
+              <select id="annPriority" class="form-select"><option value="normal">Normal</option><option value="low">Low</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('announcementModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Post Announcement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Event Modal -->
+  <div class="modal" id="eventModal">
+    <div class="modal-overlay" onclick="closeModal('eventModal')"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Event</h2>
+        <button class="modal-close" onclick="closeModal('eventModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddEvent(event)">
+        <div class="modal-body">
+          <div class="form-group"><label>Title *</label><input type="text" id="evTitle" required class="form-input"></div>
+          <div class="form-group"><label>Description</label><textarea id="evDescription" class="form-textarea" rows="3"></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Date *</label><input type="date" id="evDate" required class="form-input"></div>
+            <div class="form-group"><label>Type</label>
+              <select id="evType" class="form-select"><option value="general">General</option><option value="academic">Academic</option><option value="sports">Sports</option><option value="cultural">Cultural</option><option value="holiday">Holiday</option></select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('eventModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

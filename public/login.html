@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Access - Fun N Learn Preschool</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1.5rem;
+      gap: 0.5rem;
+    }
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem 0.5rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-light);
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: var(--transition);
+    }
+    .auth-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .step-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: #e0e7ff;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    .verified-email-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .verified-email-card strong {
+      color: var(--text);
+    }
+    .verified-email-card button {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <div class="login-left">
+      <div class="login-brand">
+        <h1>Fun N Learn Preschool</h1>
+        <p>Lohegaon, Pune • School Management Portal</p>
+      </div>
+      <div class="login-illustration">
+        <div class="illustration-text">
+          <h2>Welcome to the Portal</h2>
+          <p>Access attendance records, milestone assessments, school announcements, and academic updates. Parents and students can register with their email.</p>
+        </div>
+      </div>
+      <div style="margin-top:auto; font-size:0.85rem; opacity:0.8;">
+        <p>Campus: Kalbhor Wasti, Lohegaon, Pune - 411 032</p>
+        <p>Contact: +91 73292 83278</p>
+      </div>
+    </div>
+
+    <div class="login-right">
+      <div class="login-form">
+        <!-- Auth Tabs: Sign In / Create Account -->
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
+          <button type="button" class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
+        </div>
+
+        <!-- 1. SIGN IN FORM -->
+        <form id="signInForm" onsubmit="handleLogin(event)">
+          <h2>Sign In</h2>
+          <p class="login-subtitle">Enter your username and password to access your portal</p>
+
+          <div id="loginError" class="alert alert-error" style="display:none;"></div>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-input">
+              <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="password-toggle" id="pwdToggleBtn" onclick="togglePassword('password', 'pwdToggleBtn')">Show</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+            <span>Sign In</span>
+            <span class="spinner" style="display:none;"></span>
+          </button>
+
+          <div class="login-footer" style="margin-top:1.5rem;">
+            <p style="font-size:0.875rem; color:var(--text-light); margin-bottom:0.5rem;">
+              New to Fun N Learn?
+              <a href="javascript:void(0)" onclick="switchAuthTab('register')" style="color:var(--primary); font-weight:600;">Create an account</a>
+            </p>
+            <a href="/">Back to Homepage</a>
+          </div>
+        </form>
+
+        <!-- 2. CREATE ACCOUNT FORM (Two-step flow: Email first, then Username & Password) -->
+        <form id="registerForm" onsubmit="handleRegisterSubmit(event)" style="display:none;">
+          <h2>Create Account</h2>
+          <p class="login-subtitle" id="regSubtitle">Step 1: Provide your email and details</p>
+
+          <div id="regError" class="alert alert-error" style="display:none;"></div>
+          <div id="regSuccess" class="alert alert-success" style="display:none;"></div>
+
+          <!-- STEP 1: Email & Profile Details -->
+          <div id="regStep1">
+            <div class="step-indicator">
+              <span>Account Information</span>
+              <span class="step-badge">Step 1 of 2</span>
+            </div>
+
+            <div class="form-group">
+              <label for="regEmail">Email Address *</label>
+              <input type="email" id="regEmail" placeholder="e.g. name@example.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+              <label for="regFullName">Full Name *</label>
+              <input type="text" id="regFullName" placeholder="e.g. Amit Sharma" required autocomplete="name">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regRole">Account Type *</label>
+                <select id="regRole" class="form-select" onchange="toggleRoleFields()">
+                  <option value="parent">Parent</option>
+                  <option value="faculty">Faculty / Teacher</option>
+                  <option value="student">Student / Child</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="regPhone">Phone Number</label>
+                <input type="tel" id="regPhone" placeholder="+91 98220 00000" autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="form-group" id="regGradeGroup" style="display:none;">
+              <label for="regGrade">Class / Program</label>
+              <select id="regGrade" class="form-select">
+                <option value="Playgroup">Playgroup (Age 2 - 3 yrs)</option>
+                <option value="Nursery">Nursery (Age 3 - 4 yrs)</option>
+                <option value="LKG" selected>LKG (Age 3.5 / 4 - 5 yrs)</option>
+                <option value="UKG">UKG (Age 4.5 / 5 - 6 yrs)</option>
+              </select>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block" id="btnContinueStep2" onclick="proceedToStep2()">
+              <span>Continue to Username & Password</span>
+              <span class="spinner" style="display:none;"></span>
+            </button>
+          </div>
+
+          <!-- STEP 2: Choose Username and Password -->
+          <div id="regStep2" style="display:none;">
+            <div class="step-indicator">
+              <span>Security Credentials</span>
+              <span class="step-badge">Step 2 of 2</span>
+            </div>
+
+            <div class="verified-email-card">
+              <div>
+                <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Email Confirmed</div>
+                <strong id="displayConfirmedEmail"></strong>
+              </div>
+              <button type="button" onclick="goToStep1()">Change</button>
+            </div>
+
+            <div class="form-group">
+              <label for="regUsername">Choose Username *</label>
+              <input type="text" id="regUsername" placeholder="e.g. amit.sharma or amit123" required minlength="3" autocomplete="username">
+              <span style="font-size:0.75rem; color:var(--text-muted);">Alphanumeric characters, dots, or underscores (minimum 3 characters).</span>
+            </div>
+
+            <div class="form-group">
+              <label for="regPassword">Create Password *</label>
+              <div class="password-input">
+                <input type="password" id="regPassword" placeholder="Minimum 6 characters" required minlength="6" autocomplete="new-password">
+                <button type="button" class="password-toggle" id="regPwdToggleBtn" onclick="togglePassword('regPassword', 'regPwdToggleBtn')">Show</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regConfirmPassword">Confirm Password *</label>
+              <input type="password" id="regConfirmPassword" placeholder="Re-enter your password" required minlength="6" autocomplete="new-password">
+            </div>
+
+            <div style="display:flex; gap:0.75rem;">
+              <button type="button" class="btn btn-secondary" onclick="goToStep1()" style="flex:1;">Back</button>
+              <button type="submit" class="btn btn-primary" id="btnCreateAccount" style="flex:2;">
+                <span>Complete & Sign In</span>
+                <span class="spinner" style="display:none;"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="login-footer" style="margin-top:1.5rem;">
+            <p style="font-size:0.875rem; color:var(--text-light); margin-bottom:0.5rem;">
+              Already have an account?
+              <a href="javascript:void(0)" onclick="switchAuthTab('signin')" style="color:var(--primary); font-weight:600;">Sign in here</a>
+            </p>
+            <a href="/">Back to Homepage</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Redirect if already logged in
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (token && user) {
+      window.location.href = ['admin', 'faculty', 'teacher'].includes(user.role) ? '/admin' : '/parent';
+    }
+
+    function switchAuthTab(tab) {
+      const signInForm = document.getElementById('signInForm');
+      const registerForm = document.getElementById('registerForm');
+      const tabSignIn = document.getElementById('tabSignIn');
+      const tabRegister = document.getElementById('tabRegister');
+      const loginError = document.getElementById('loginError');
+      const regError = document.getElementById('regError');
+
+      loginError.style.display = 'none';
+      regError.style.display = 'none';
+
+      if (tab === 'signin') {
+        signInForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        tabSignIn.classList.add('active');
+        tabRegister.classList.remove('active');
+      } else {
+        signInForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        tabSignIn.classList.remove('active');
+        tabRegister.classList.add('active');
+        goToStep1();
+      }
+    }
+
+    function toggleRoleFields() {
+      const role = document.getElementById('regRole').value;
+      const gradeGroup = document.getElementById('regGradeGroup');
+      if (gradeGroup) {
+        gradeGroup.style.display = role === 'student' ? 'block' : 'none';
+      }
+    }
+
+    function togglePassword(inputId, btnId) {
+      const pwd = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        btn.textContent = 'Hide';
+      } else {
+        pwd.type = 'password';
+        btn.textContent = 'Show';
+      }
+    }
+
+    function goToStep1() {
+      document.getElementById('regStep1').style.display = 'block';
+      document.getElementById('regStep2').style.display = 'none';
+      document.getElementById('regSubtitle').textContent = 'Step 1: Provide your email and details';
+      document.getElementById('regError').style.display = 'none';
+    }
+
+    async function proceedToStep2() {
+      const emailInput = document.getElementById('regEmail');
+      const nameInput = document.getElementById('regFullName');
+      const errDiv = document.getElementById('regError');
+      const btn = document.getElementById('btnContinueStep2');
+
+      errDiv.style.display = 'none';
+
+      const email = emailInput.value.trim();
+      const fullName = nameInput.value.trim();
+
+      if (!email || !fullName) {
+        errDiv.textContent = 'Please fill in both your email address and full name.';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        errDiv.textContent = 'Please enter a valid email address.';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.querySelector('.spinner').style.display = 'inline-block';
+
+      try {
+        const res = await fetch('/api/auth/check-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (!data.available) {
+          errDiv.textContent = 'An account with this email address already exists. Please sign in or use another email.';
+          errDiv.style.display = 'block';
+          btn.disabled = false;
+          btn.querySelector('.spinner').style.display = 'none';
+          return;
+        }
+
+        // Suggest default username from name if not yet typed
+        const regUsernameInput = document.getElementById('regUsername');
+        if (!regUsernameInput.value) {
+          const suggested = fullName.toLowerCase().replace(/[^a-z0-9]/g, '.').substring(0, 15);
+          regUsernameInput.value = suggested;
+        }
+
+        document.getElementById('displayConfirmedEmail').textContent = email;
+        document.getElementById('regStep1').style.display = 'none';
+        document.getElementById('regStep2').style.display = 'block';
+        document.getElementById('regSubtitle').textContent = 'Step 2: Choose your username and password';
+      } catch (err) {
+        errDiv.textContent = 'Unable to verify email. Please check your connection and try again.';
+        errDiv.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('.spinner').style.display = 'none';
+      }
+    }
+
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const errDiv = document.getElementById('regError');
+      const succDiv = document.getElementById('regSuccess');
+      const btn = document.getElementById('btnCreateAccount');
+
+      errDiv.style.display = 'none';
+      succDiv.style.display = 'none';
+
+      const email = document.getElementById('regEmail').value.trim();
+      const full_name = document.getElementById('regFullName').value.trim();
+      const role = document.getElementById('regRole').value;
+      const phone = document.getElementById('regPhone').value.trim() || null;
+      const grade = document.getElementById('regGrade').value;
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        errDiv.textContent = 'Passwords do not match. Please re-enter.';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      if (password.length < 6) {
+        errDiv.textContent = 'Password must be at least 6 characters.';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.querySelector('.spinner').style.display = 'inline-block';
+      btn.querySelector('span:first-child').textContent = 'Creating Account...';
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, full_name, role, phone, grade, username, password })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Registration failed');
+        }
+
+        succDiv.textContent = 'Account created successfully! Redirecting to your dashboard...';
+        succDiv.style.display = 'block';
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        setTimeout(() => {
+          window.location.href = ['admin', 'faculty', 'teacher'].includes(data.user.role) ? '/admin' : '/parent';
+        }, 1000);
+      } catch (err) {
+        errDiv.textContent = err.message;
+        errDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.querySelector('.spinner').style.display = 'none';
+        btn.querySelector('span:first-child').textContent = 'Complete & Sign In';
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const errorDiv = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+      errorDiv.style.display = 'none';
+      btn.disabled = true;
+      btn.querySelector('.spinner').style.display = 'inline-block';
+      btn.querySelector('span:first-child').textContent = 'Signing in...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('username').value.trim(),
+            password: document.getElementById('password').value
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Invalid credentials');
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        if (['admin', 'faculty', 'teacher'].includes(data.user.role)) {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/parent';
+        }
+      } catch (err) {
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('.spinner').style.display = 'none';
+        btn.querySelector('span:first-child').textContent = 'Sign In';
+      }
+    }
+  </script>
+</body>
+</html>
